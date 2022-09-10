@@ -1,0 +1,42 @@
+#Configuration for database
+spring:
+  profiles: local
+  datasource:
+    name: datasource
+    url: "jdbc:postgresql://localhost:5432/resto"
+    username: postgres
+    password: root
+    platform: postgres
+    driver-class-name: org.postgresql.Driver
+    filters: stat
+    maxActive: 50
+    initialSize: 1
+    maxWait: 60000
+    minIdle: 1
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxOpenPreparedStatements: 50
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      connection-test-query: SELECT 1
+      connection-timeout: 30000
+      maximum-pool-size: 50
+      max-lifetime: 1800000
+      minimum-idle: 10
+      validation-timeout: 3000
+      idle-timeout: 60000
+      pool-name: KumPadiConnPool
+  jpa:
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+#Configuration for Swagger
+swagger:
+  enabled: true
+  host: "localhost:80"
