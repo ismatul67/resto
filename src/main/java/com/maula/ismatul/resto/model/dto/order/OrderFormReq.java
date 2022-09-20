@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderFormReq {
-    private Long orderId;
     private Long billId;
+    private String name;
     private Long foodId;
     private Integer quantity;
 }

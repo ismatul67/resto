@@ -24,6 +24,11 @@ public class BillService {
     }
 
     public Page<Bill> search(Pageable pageable){
-        return billRepository.findAll(pageable);
+        return billRepository.findAllByIsPaid(false,pageable);
+    }
+
+    public Bill updateOrCreate(Bill bill){
+        return billRepository.save(bill);
+    
     }
 }

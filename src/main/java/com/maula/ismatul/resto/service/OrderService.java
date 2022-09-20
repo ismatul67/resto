@@ -2,6 +2,7 @@ package com.maula.ismatul.resto.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.maula.ismatul.resto.exception.BadRequestException;
 import com.maula.ismatul.resto.exception.UnprocessableEntity;
 import com.maula.ismatul.resto.model.dto.billdetail.BillDetailFormCreateOrUpdate;
 import com.maula.ismatul.resto.model.dto.order.OrderFormReq;
@@ -32,26 +33,26 @@ public class OrderService {
         this.transactionService = transactionService;
     }
 
-    //TODO FIX RESPONSE
     @Transactional
     public Bill add(OrderFormReq form){
-        Bill bill;
+        if (form.getQuantity()<1) {
+            throw new BadRequestException("Quantity should be filled at least 1");
+        }
+        Bill bill = new Bill();
         if (Objects.nonNull(form.getBillId())){
             bill = billService.findById(form.getBillId());
-        } else {
-            bill = billService.create();
         }
-        log.info(bill);
+        bill.setName(form.getName());
+        bill.setIsPaid(false);
+        Bill updatedBill = billService.updateOrCreate(bill);
+        log.info(bill.toString());
         BillDetailFormCreateOrUpdate createFormBillDetail = BillDetailFormCreateOrUpdate.builder()
                 .billId(bill.getId())
                 .foodId(form.getFoodId())
                 .quantity(form.getQuantity())
                 .build();
         billDetailService.create(createFormBillDetail);
-
-        Bill byId = billService.findById(bill.getId());
-        log.info(byId);
-        return byId;
+        return updatedBill;
     }
 
     public Bill findById(Long id){
@@ -66,7 +67,11 @@ public class OrderService {
         Bill bill = billService.findById(id);
 
         if (null == bill.getOrderDetails()){
-            throw new UnprocessableEntity("Cannot PAID this order because this order cannot food");
+            throw new UnprocessableEntity("Cannot PAID this order because this order not found");
+        }
+
+        if (true == bill.getIsPaid()){
+            throw new UnprocessableEntity("Cannot PAID,This order was successfully paid");
         }
 
         BigDecimal totalAmount  = BigDecimal.ZERO;
@@ -92,7 +97,8 @@ public class OrderService {
         Transaction paid = transactionService.paid(transaction);
 
         Bill objectMenu = mapper.readValue(paid.getMenu(), Bill.class);
-
+        bill.setIsPaid(true);
+        billService.updateOrCreate(bill);
         return TransactionResp.builder()
                 .id(paid.getId())
                 .paymentMethod(paid.getPaymentMethod())

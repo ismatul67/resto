@@ -21,6 +21,11 @@ public class Bill {
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
+    @Column(name = "name", updatable = false)
+    private String name;
+
+    private Boolean isPaid;
+
     @JsonIgnoreProperties(value = {"bill"})
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL)
     private List<BillDetail> orderDetails;
